@@ -9,7 +9,7 @@ import java.nio.file.Paths
 
 buildscript {
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "3.6.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "3.7.0-SNAPSHOT")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         version_tokens = opensearch_version.tokenize('-')
@@ -33,7 +33,7 @@ buildscript {
         bwcFilePath = "src/test/resources/org/opensearch/flowframework/bwc/"
         bwcFlowFrameworkPath = bwcFilePath + "flowframework/"
 
-        isSameMajorVersion = opensearch_version.split("\\.")[0] == bwcVersionShort.split("\\.")[0]
+        isSameMajorVersion = opensearch_version.split("\.")[0] == bwcVersionShort.split("\.")[0]
 
         // Version constants for dependencies
         awsEncryptionSdkVersion = "3.0.2"
@@ -417,17 +417,25 @@ integTest {
             if (ymlFile.exists()) {
                 ymlFile.withWriterAppend {
                     writer ->
-                    writer.write("\n# Set multitenancy\n")
-                    writer.write("plugins.flow_framework.multi_tenancy_enabled: true\n")
-                    writer.write("plugins.ml_commons.multi_tenancy_enabled: true\n")
+                    writer.write("
+# Set multitenancy
+")
+                    writer.write("plugins.flow_framework.multi_tenancy_enabled: true
+")
+                    writer.write("plugins.ml_commons.multi_tenancy_enabled: true
+")
                 }
                 // TODO this properly uses the remote client factory but needs a remote cluster set up
                 // TODO get the endpoint from a system property
                 if (System.getProperty("tests.rest.cluster") != null) {
                     ymlFile.withWriterAppend { writer ->
-                        writer.write("\n# Use a remote cluster\n")
-                        writer.write("plugins.flow_framework.remote_metadata_type: RemoteOpenSearch\n")
-                        writer.write("plugins.flow_framework.remote_metadata_endpoint: https://127.0.0.1:9200\n")
+                        writer.write("
+# Use a remote cluster
+")
+                        writer.write("plugins.flow_framework.remote_metadata_type: RemoteOpenSearch
+")
+                        writer.write("plugins.flow_framework.remote_metadata_endpoint: https://127.0.0.1:9200
+")
                     }
                 }
             } else {
@@ -513,7 +521,8 @@ testClusters.integTest {
         setting("plugins.security.allow_default_init_securityindex", "true")
         setting("plugins.security.unsupported.inject_user.enabled", "true")
 
-        setting("plugins.security.authcz.admin_dn", "\n- CN=kirk,OU=client,O=client,L=test, C=de")
+        setting("plugins.security.authcz.admin_dn", "
+- CN=kirk,OU=client,O=client,L=test, C=de")
         setting('plugins.security.restapi.roles_enabled', '["all_access", "security_rest_api_access"]')
         setting('plugins.security.system_indices.enabled', "true")
         setting('plugins.security.system_indices.indices', '[' +
@@ -880,7 +889,7 @@ task updateVersion {
         ext.newVersion = System.getProperty('newVersion')
         println "Setting version to ${newVersion}."
         // String tokenization to support -SNAPSHOT
-        ant.replaceregexp(file:'build.gradle', match: '"opensearch.version", "\\d.*"', replace: '"opensearch.version", "' + newVersion.tokenize('-')[0] + '-SNAPSHOT"', flags:'g', byline:true)
+        ant.replaceregexp(file:'build.gradle', match: '"opensearch.version", "\d.*"', replace: '"opensearch.version", "' + newVersion.tokenize('-')[0] + '-SNAPSHOT"', flags:'g', byline:true)
     }
 }
 
